@@ -205,7 +205,6 @@ class data_base{
             incaperi=new int[100];
         }
         data_base(const data_base& x){
-            incaperi=new int[100];
             id=x.id;
             tip_sala=x.tip_sala;
             nr_apartamente=x.nr_apartamente;
@@ -215,6 +214,7 @@ class data_base{
             ziua_minima=x.ziua_minima;
             nr_zile=x.nr_zile;
             nr_participanti=x.nr_participanti;
+            incaperi=new int[100];
             for(int i=0;i<nr_apartamente+nr_camere+nr_indiv+1;++i)incaperi[i]=x.incaperi[i];
             for(int i=0;i<nr_participanti;++i)strcpy(participanti[i],x.participanti[i]);
         }
@@ -241,7 +241,7 @@ class data_base{
         int get_id_incapere(int i){return incaperi[i];}
         void asezare(int idul);
         void anulare();
-}grupuri[50];
+};
 data_base data_base::operator=(const data_base x){
     id=x.id;
     tip_sala=x.tip_sala;
@@ -424,15 +424,15 @@ void data_base::anulare(){
     for(int j=ziua_minima;j<ziua_minima+nr_zile;++j)
         hotelul.set_loc_restaurant(j,hotelul.get_loc_restaurant(j)-nr_micdejun);
 }
-void introducere_date(int index){
-    grupuri[index-1].asezare(index);
-    if(grupuri[index-1].get_id()!=-2){
-        cout<<grupuri[index-1];
+void introducere_date(int index,data_base &grup){
+    grup.asezare(index);
+    if(grup.get_id()!=-2){
+        cout<<grup;
     }
     else
         cout<<"Cererea grupului cu id-ul "<<index<<" nu este valida!\n\n";
 }
-void scoatere(int id,int index){
+void scoatere(int id,int index,data_base grupuri[50]){
     int gasit=0;
     for(int i=0;i<index-1;++i)if(grupuri[i].get_id()==id)gasit=1;
         if(gasit==1){
@@ -442,7 +442,7 @@ void scoatere(int id,int index){
         else
             cout<<"Grupul cu id-ul "<<id<<" nu exista!\n\n";
 }
-void afisare(int index){
+void afisare(int index,data_base grupuri[50]){
     for(int i=0;i<41;++i)cout<<"-";
     cout<<"\n\n";
     cout<<"Aceasta este starea actuala a bazei de date:\n\n";
@@ -459,6 +459,7 @@ void afisare(int index){
     cout<<"\n\n";
 }
 int main(int argc, char* argv[]){
+    data_base grupuri[50];
     int x,index=1;
     istream *in;
     if(argc==1)in=&cin;
@@ -474,17 +475,17 @@ int main(int argc, char* argv[]){
     while(x!=-1){
         if(x==1){
             *in>>grupuri[index-1];
-            introducere_date(index);
+            introducere_date(index,grupuri[index-1]);
             ++index;
         }
         else 
             if(x==0){
                 int id;
                 *in>>id;
-                scoatere(id,index);
+                scoatere(id,index,grupuri);
             }
             else
-                afisare(index);
+                afisare(index,grupuri);
         if(argc==1)cout<<"Introduceti de la tastatura valoarea 1 daca se mai doreste introducerea unei cereri pentru un nou grup, valoarea 0, daca se doreste anularea undei rezervari, valoarea 2, daca se doreste vizualizarea starii bazei de date, sau valoarea -1, daca doriti ca programul sa se incheie!\n";
         *in>>x;
     }
