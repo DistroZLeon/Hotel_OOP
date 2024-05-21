@@ -423,6 +423,27 @@ void data_base::anulare(){
     for(int i=0;i<t;++i)hotelul.ocupare_eliberare(incaperi[i]+1,ziua_minima,nr_zile,0);
     for(int j=ziua_minima;j<ziua_minima+nr_zile;++j)
         hotelul.set_loc_restaurant(j,hotelul.get_loc_restaurant(j)-nr_micdejun);
+    int i=0;int y=hotelul.get_tip_incapere(incaperi[0]+1);
+    while(i<t){
+        int cont=0;
+        while(i<t&&y==hotelul.get_tip_incapere(incaperi[i]+1)){
+            cont++;
+            i++;
+        }
+        if(cont!=0)
+            {cout<<"Grupul avea rezervata/rezervate "<<cont<<" incapere/incaperi de tip ";
+            if(y==1)cout<<"apartament\n";
+            else
+                if(y==2)cout<<"camera\n";
+                else
+                    if(y==3)cout<<"sala individuala\n";
+                    else
+                        cout<<"sala scena\n";
+        }
+        if(i<t)
+            y=hotelul.get_tip_incapere(incaperi[i]+1);
+    }
+    cout<<"\n";
 }
 void introducere_date(int index,data_base &grup){
     grup.asezare(index);
@@ -436,8 +457,8 @@ void scoatere(int id,int index,data_base grupuri[50]){
     int gasit=0;
     for(int i=0;i<index-1;++i)if(grupuri[i].get_id()==id)gasit=1;
         if(gasit==1){
-            grupuri[id-1].anulare();
-            cout<<"Grupul cu id-ul "<<id<<" si-a anulat rezervarea!\n\n";    
+            cout<<"Grupul cu id-ul "<<id<<" si-a anulat rezervarea! \nDetalii: \n";
+            grupuri[id-1].anulare();   
         }
         else
             cout<<"Grupul cu id-ul "<<id<<" nu exista!\n\n";
