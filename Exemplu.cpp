@@ -144,46 +144,21 @@ class hotel{
             for(int i=0;i<h.nr_sali_scena;++i){h.incaperi[i+t]=new sala_scena;h.incaperi[i+t]->set_index(i+1);}
             return in;
         }
-    public:
         hotel(){}
-        hotel(const hotel& x){
-            nr_apartamente=x.nr_apartamente;
-            nr_camere=x.nr_camere;
-            nr_restaurant=x.nr_restaurant;
-            nr_sali_indiv=x.nr_sali_indiv;
-            nr_sali_scena=x.nr_sali_scena;
-            int t=0;
-            for(int i=1;i<366;++i)loc_restaurant[i]=x.loc_restaurant[i];
-            for(int i=0;i<nr_apartamente;++i){incaperi[i+t]=new apartament;incaperi[i+t]=x.incaperi[i+t];}
-            t+=nr_apartamente;
-            for(int i=0;i<nr_camere;++i){incaperi[i+t]=new camera;incaperi[i+t]=x.incaperi[i+t];}
-            t+=nr_camere;
-            for(int i=0;i<nr_sali_indiv;++i){incaperi[i+t]=new sala_individuala;incaperi[i+t]=x.incaperi[i+t];}
-            t+=nr_sali_indiv;
-            for(int i=0;i<nr_sali_scena;++i){incaperi[i+t]=new sala_scena;incaperi[i+t]=x.incaperi[i+t];}
-        }
-        hotel& operator=( hotel x){
-            for(int i=0;i<nr_apartamente+nr_camere+nr_sali_indiv+nr_sali_scena;++i)if(incaperi[i])delete incaperi[i];
-            nr_apartamente=x.nr_apartamente;
-            nr_camere=x.nr_camere;
-            nr_restaurant=x.nr_restaurant;
-            nr_sali_indiv=x.nr_sali_indiv;
-            nr_sali_scena=x.nr_sali_scena;
-            int t=0;
-            for(int i=1;i<366;++i)loc_restaurant[i]=x.loc_restaurant[i];
-            for(int i=0;i<nr_apartamente;++i){incaperi[i+t]=new apartament;incaperi[i+t]=x.incaperi[i+t];}
-            t+=nr_apartamente;
-            for(int i=0;i<nr_camere;++i){incaperi[i+t]=new camera;incaperi[i+t]=x.incaperi[i+t];}
-            t+=nr_camere;
-            for(int i=0;i<nr_sali_indiv;++i){incaperi[i+t]=new sala_individuala;incaperi[i+t]=x.incaperi[i+t];}
-            t+=nr_sali_indiv;
-            for(int i=0;i<nr_sali_scena;++i){incaperi[i+t]=new sala_scena;incaperi[i+t]=x.incaperi[i+t];}
-            return *this;
-        }
+        hotel(const hotel& )=delete;
+        hotel& operator=(const hotel& x)=delete;
         ~hotel(){
             int t=nr_apartamente+nr_camere+nr_sali_indiv+nr_sali_scena;
             for(int i=0;i<t;++i)
                 if(incaperi[i])delete incaperi[i];
+        }
+    public:
+        static hotel& get_instanta() {
+            static hotel instanta;
+            return instanta;
+        }
+        static void eliberare() {
+            get_instanta().~hotel();
         }
         int get_nr_apartamente();
         int get_nr_camere();
@@ -203,7 +178,7 @@ class hotel{
         int get_capacitate_minima(int i){return incaperi[i]->get_capacitate_minima();}
         int get_id_zi(int i,int zi){return incaperi[i]->get_id_zi(zi);}
         int get_index(int i){return incaperi[i]->get_index();}
-}hotelul;
+};
 int hotel::get_loc_restaurant(int i){return loc_restaurant[i];}
 void hotel::set_loc_restaurant(int i,int val){loc_restaurant[i]=val;}
 int hotel::get_nr_apartamente(){return nr_apartamente;}
@@ -249,6 +224,7 @@ class data_base{
             if(cont==1)in>>base.tip_sala;
         }
         friend ostream& operator<<(ostream& out,data_base& base){
+            hotel& hotelul=hotel::get_instanta();
             out<<"Cererea grupului cu id-ul "<<base.id<<" va fi onorata in ziua a "<<base.ziua_minima<<"-a\n"<<"Acestea sunt detaliile:\n";
             for(int i=0;i<base.nr_participanti;++i)out<<base.participanti[i]<<"\n";
             if(base.tip_sala==0){
@@ -336,6 +312,7 @@ char* data_base::get_participanti_line(int i){return participanti[i];}
 void data_base::set_participanti_line(int i, char sir[200]){strcpy(participanti[i],sir);}
 
 void liber(int tip,int &nr,int zi_minima,int &min_mai_mare,int lista[30],int nr_zile){
+    hotel& hotelul=hotel::get_instanta();
     int i,j,k,bun,start,limita;
     if(tip==1){start=0;limita=start+hotelul.get_nr_apartamente();}
     else
@@ -356,6 +333,7 @@ void liber(int tip,int &nr,int zi_minima,int &min_mai_mare,int lista[30],int nr_
     }
 }
 void liber(int tip,int zi_minima,int &min_mai_mare,int &memorare,int nr_zile,int optional){
+    hotel& hotelul=hotel::get_instanta();
     int i,j,k,bun,start,limita;
     if(tip==4){
         start=hotelul.get_nr_apartamente()+hotelul.get_nr_camere()+hotelul.get_nr_sali_indiv();limita=start+ hotelul.get_nr_sali_scena();
@@ -386,6 +364,7 @@ void liber(int tip,int zi_minima,int &min_mai_mare,int &memorare,int nr_zile,int
     }
 }
 void alegere(int &i,int &j,int nr_cam,int nr_apart,int nr_participanti){
+    hotel& hotelul=hotel::get_instanta();
     int bun=0;
     for (j=0;j<=nr_cam;++j){
         for (i=0;i<=nr_apart;++i)
@@ -398,9 +377,13 @@ void alegere(int &i,int &j,int nr_cam,int nr_apart,int nr_participanti){
     }
 }
 void data_base::asezare(int idul){
+    hotel& hotelul=hotel::get_instanta();
     int zi_minima=1,gasit=0,accept=1,apartam[30],came[30],sala_indivi[10],salascena,nr_apart=0,nr_cam=0,nr_individ=0;
     int nr_sali_necesare=tip_sala==1?1:((nr_participanti%hotelul.get_capacitate_maxima(hotelul.get_nr_apartamente()+hotelul.get_nr_camere()))==0?nr_participanti/hotelul.get_capacitate_maxima(hotelul.get_nr_apartamente()+hotelul.get_nr_camere()):(nr_participanti/hotelul.get_capacitate_maxima(hotelul.get_nr_apartamente()+hotelul.get_nr_camere()))+1);
-    if((tip_sala==0&&nr_participanti<hotelul.get_capacitate_minima(hotelul.get_nr_apartamente()+hotelul.get_nr_camere()))||(tip_sala==0&&nr_sali_necesare>hotelul.get_nr_sali_indiv())){accept=0;throw 0;}
+    if((tip_sala==0&&nr_participanti<hotelul.get_capacitate_minima(hotelul.get_nr_apartamente()+hotelul.get_nr_camere()))||(tip_sala==0&&nr_sali_necesare>hotelul.get_nr_sali_indiv())||nr_participanti>hotelul.get_capacitate_maxima(0)*hotelul.get_nr_apartamente()+hotelul.get_capacitate_maxima(hotelul.get_nr_apartamente())*hotelul.get_nr_camere()){
+        accept=0;
+        throw 0;
+    }
     if((nr_participanti<=hotelul.get_nr_apartamente()*(hotelul.get_capacitate_maxima(0))+hotelul.get_nr_camere()*(hotelul.get_capacitate_maxima(hotelul.get_nr_apartamente())))&&accept){
         id=idul;
         while(gasit==0){
@@ -476,6 +459,7 @@ void data_base::asezare(int idul){
     }
 }
 void data_base::anulare(){
+    hotel& hotelul=hotel::get_instanta();
     id=-1;
     int t=nr_apartamente+nr_camere;
     if(tip_sala==1)t++;
@@ -539,6 +523,7 @@ void afisare(int index,data_base grupuri[50]){
     cout<<"\n\n";
 }
 int main(int argc, char* argv[]){
+    hotel& hotelul=hotel::get_instanta();
     data_base grupuri[50];
     int x,index=1;
     istream *in;
@@ -574,5 +559,6 @@ int main(int argc, char* argv[]){
     exemplu_schimbare_tip.set_index(23);
     for(int i=1;i<24;++i)exemplu_schimbare_tip.set_id_zi(i,2*i);
     sala_individuala schimbata(exemplu_schimbare_tip);
+    hotel::eliberare();
     return 0;
 }
